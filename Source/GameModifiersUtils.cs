@@ -98,8 +98,8 @@ internal static class GameModifiersUtils
 
         foreach (var modifier in modifiers)
         {
-            string description = withDescriptions ? $" - [{modifier.Description}]" : "";
-            player.PrintToChat($"• {modifier.Name}{description}");
+            string description = withDescriptions ? $" - [{modifier.TranslationDescription}]" : "";
+            player.PrintToChat($"• {modifier.TranslationName}{description}");
         }
     }
 

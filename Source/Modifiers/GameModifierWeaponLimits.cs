@@ -29,7 +29,7 @@ public abstract class GameModifierRemoveWeapons : GameModifierBase
 
         Utilities.GetPlayers().ForEach(RemoveWeapons);
 
-        GameModifiersUtils.PrintTitleToChatAll("Removing items, they will be returned when the modifier is disabled.");
+        GameModifiersUtils.PrintTitleToChatAll(TranslationMsg("remove.items.msg"));
     }
 
     public override void Disabled()
@@ -44,7 +44,7 @@ public abstract class GameModifierRemoveWeapons : GameModifierBase
             TryReturnWeapons(Utilities.GetPlayerFromSlot(cachedWeaponPair.Key));
         }
         
-        GameModifiersUtils.PrintTitleToChatAll("Returning items...");
+        GameModifiersUtils.PrintTitleToChatAll(TranslationMsg("return.items.msg"));
 
         base.Disabled();
     }
@@ -185,7 +185,7 @@ public class GameModifierRandomWeapon : GameModifierRemoveWeapons
     protected virtual void ApplyRandomWeapon()
     {
         string randomWeaponName = GameModifiersUtils.GetRandomRangedWeaponName();
-        GameModifiersUtils.PrintTitleToChatAll($"{randomWeaponName.Substring(7)} round.");
+        GameModifiersUtils.PrintTitleToChatAll($"{randomWeaponName.Substring(7)} {TranslationMsg("apply.random.weapon")}");
 
         Utilities.GetPlayers().ForEach(player =>
         {
@@ -211,7 +211,7 @@ public class GameModifierRandomWeapons : GameModifierRandomWeapon
         Utilities.GetPlayers().ForEach(player =>
         {
             string randomWeaponName = GameModifiersUtils.GetRandomRangedWeaponName();
-            GameModifiersUtils.PrintTitleToChat(player, $"{randomWeaponName.Substring(7)} for random weapon round.");
+            GameModifiersUtils.PrintTitleToChat(player, $"{randomWeaponName.Substring(7)} {TranslationMsg("apply.random.weapons")}");
             GameModifiersUtils.GiveAndEquipWeapon(player, randomWeaponName);
         });
     }

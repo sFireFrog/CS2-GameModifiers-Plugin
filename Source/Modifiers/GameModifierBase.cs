@@ -98,4 +98,20 @@ public abstract class GameModifierBase
 
         return false;
     }
+
+    public string TranslationDescription
+    {
+        get { return Core?.Localizer[$"{Name}.description"] ?? ""; }
+    }
+
+    public string TranslationName
+    {
+        get { return Core?.Localizer[$"{Name}.name"] ?? Name; }
+    }
+
+    public string TranslationMsg(string key)
+    {
+        return Core?.Localizer[key] ?? "";
+    }
+    
 }

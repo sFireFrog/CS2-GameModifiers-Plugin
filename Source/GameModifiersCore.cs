@@ -42,7 +42,7 @@ public class GameModifiersCore : BasePlugin, IPluginConfig<GameModifiersConfig>
         base.Load(hotReload);
 
         Initialise();
-
+        
         Console.WriteLine("[GameModifiers::Load] Successfully loaded!");
     }
 
@@ -753,7 +753,7 @@ public class GameModifiersCore : BasePlugin, IPluginConfig<GameModifiersConfig>
             return;
         }
         
-        GameModifiersUtils.PrintTitleToChatAll("Removing modifiers:");
+        GameModifiersUtils.PrintTitleToChatAll($"{Localizer["centre.remove.msg"]}:");
 
         // Undo modifiers in the order they were applied.
         for (var index = ActiveModifiers.Count - 1; index >= 0; index--)
@@ -761,7 +761,7 @@ public class GameModifiersCore : BasePlugin, IPluginConfig<GameModifiersConfig>
             var modifier = ActiveModifiers[index];
             modifier.Disabled();
             
-            GameModifiersUtils.PrintToChatAll($"• {modifier.Name}");
+            GameModifiersUtils.PrintToChatAll($"• {modifier.TranslationName}");
         }
 
         ActiveModifiers.Clear();
@@ -865,7 +865,7 @@ public class GameModifiersCore : BasePlugin, IPluginConfig<GameModifiersConfig>
 
         if (Config.ShowCentreMsg)
         {
-            string centreActivationMsg = $"Activating Modifiers:\u2029";
+            string centreActivationMsg = $"{Localizer["centre.activation.msg"]}:\u2029";
 
             for (var index = 0; index < modifiers.Count; index++)
             {
@@ -874,16 +874,16 @@ public class GameModifiersCore : BasePlugin, IPluginConfig<GameModifiersConfig>
                     centreActivationMsg += ", ";
                 }
 
-                centreActivationMsg += $"{modifiers[index].Name}";
+                centreActivationMsg += $"{modifiers[index].TranslationName}";
             }
 
             GameModifiersUtils.ShowMessageCentreAll(centreActivationMsg);
         }
 
-        GameModifiersUtils.PrintTitleToChatAll("Activating modifiers:");
+        GameModifiersUtils.PrintTitleToChatAll($"{Localizer["centre.activation.msg"]}:");
         foreach (var modifier in modifiers)
         {
-            GameModifiersUtils.PrintToChatAll($"• {modifier.Name} - {ChatColors.Grey}[{modifier.Description}]");
+            GameModifiersUtils.PrintToChatAll($"• {modifier.TranslationName} - {ChatColors.Grey}[{modifier.TranslationDescription}]");
         }
 
         foreach (GameModifierBase? modifier in modifiers)
