@@ -78,7 +78,7 @@ internal static class GameModifiersUtils
             return;
         }
 
-        player.PrintToChat($"[{ChatColors.Red}GameModifiers{ChatColors.Default}] {message}");
+        player.PrintToChat(message);
     }
 
     public static void PrintModifiersToChat(CCSPlayerController? player, List<GameModifierBase> modifiers, string message, bool withDescriptions = true)
