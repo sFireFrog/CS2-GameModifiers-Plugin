@@ -123,7 +123,7 @@ public abstract class GameModifierXrayBase : GameModifierBase
     private void OnCheckTransmit(CCheckTransmitInfoList infoList)
     {
         List<CCSPlayerController> players = Utilities.GetPlayers();
-        if (!players.Any())
+        if (players is null || players.Count == 0)
         {
             return;
         }
@@ -251,13 +251,13 @@ public class GameModifierXraySingle : GameModifierXrayBase
         CachedXrayEnabledPlayers.Clear();
         
         List<CCSPlayerController> terroristPlayers = GameModifiersUtils.GetTerroristPlayers();
-        if (terroristPlayers.Any())
+        if (terroristPlayers is not null && terroristPlayers.Count > 0)
         {
             CachedXrayEnabledPlayers.Add(terroristPlayers[Random.Shared.Next(terroristPlayers.Count)].Slot);
         }
 
         List<CCSPlayerController> counterTerroristPlayers = GameModifiersUtils.GetCounterTerroristPlayers();
-        if (counterTerroristPlayers.Any())
+        if (counterTerroristPlayers is not null && counterTerroristPlayers.Count > 0)
         {
             CachedXrayEnabledPlayers.Add(counterTerroristPlayers[Random.Shared.Next(counterTerroristPlayers.Count)].Slot);
         }

@@ -224,7 +224,7 @@ public class GameModifierImposters : GameModifierModelSwap
 
     private void ApplyImposter(List<CCSPlayerController> players)
     {
-        if (!players.Any())
+        if (players is null || players.Count == 0)
         {
             return;
         }

@@ -115,7 +115,7 @@ public abstract class GameModifierInvisibleBase : GameModifierBase
     private void OnCheckTransmit(CCheckTransmitInfoList infoList)
     {
         List<CCSPlayerController> players = Utilities.GetPlayers();
-        if (!players.Any())
+        if (players is null || players.Count == 0)
         {
             return;
         }
@@ -209,13 +209,13 @@ public class GameModifierSingleCloak : GameModifierInvisibleBase
         CachedHiddenPlayers.Clear();
         
         List<CCSPlayerController> terroristPlayers = GameModifiersUtils.GetTerroristPlayers();
-        if (terroristPlayers.Any())
+        if (terroristPlayers is not null && terroristPlayers.Count > 0)
         {
             CachedHiddenPlayers.Add(terroristPlayers[Random.Shared.Next(terroristPlayers.Count)].Slot);
         }
 
         List<CCSPlayerController> counterTerroristPlayers = GameModifiersUtils.GetCounterTerroristPlayers();
-        if (counterTerroristPlayers.Any())
+        if (counterTerroristPlayers is not null && counterTerroristPlayers.Count > 0)
         {
             CachedHiddenPlayers.Add(counterTerroristPlayers[Random.Shared.Next(counterTerroristPlayers.Count)].Slot);
         }

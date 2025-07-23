@@ -57,15 +57,16 @@ internal static class GameModifiersUtils
         "weapon_g3sg1",
         "weapon_negev"
     ];
-    
+
     public static List<CCSPlayerController> GetPlayerFromName(string name)
     {
-        return Utilities.GetPlayers().FindAll(x => x.PlayerName.Contains(name, StringComparison.OrdinalIgnoreCase));
+        var returnInfo = Utilities.GetPlayers()?.FindAll(x => x.PlayerName.Contains(name, StringComparison.OrdinalIgnoreCase));
+        return returnInfo ?? new List<CCSPlayerController>();
     }
 
     public static void ShowMessageCentreAll(string message)
     {
-        Utilities.GetPlayers().ForEach(controller =>
+        Utilities.GetPlayers()?.ForEach(controller =>
         {
             controller.PrintToCenter(message);
         });
@@ -90,7 +91,7 @@ internal static class GameModifiersUtils
 
         PrintTitleToChat(player, message);
 
-        if (!modifiers.Any())
+        if (modifiers is null || modifiers.Count == 0)
         {
             player.PrintToChat($"None");
             return;
@@ -105,7 +106,7 @@ internal static class GameModifiersUtils
 
     public static void PrintTitleToChatAll(string message)
     {
-        Utilities.GetPlayers().ForEach(controller =>
+        Utilities.GetPlayers()?.ForEach(controller =>
         {
             PrintTitleToChat(controller, message);
         });
@@ -113,7 +114,7 @@ internal static class GameModifiersUtils
 
     public static void PrintToChatAll(string message)
     {
-        Utilities.GetPlayers().ForEach(controller =>
+        Utilities.GetPlayers()?.ForEach(controller =>
         {
             controller.PrintToChat(message);
         });
@@ -121,7 +122,7 @@ internal static class GameModifiersUtils
 
     public static void ExecuteCommandFromServerOnAllClients(string command)
     {
-        Utilities.GetPlayers().ForEach(controller =>
+        Utilities.GetPlayers()?.ForEach(controller =>
         {
             controller.ExecuteClientCommandFromServer(command);
         });
@@ -587,7 +588,7 @@ internal static class GameModifiersUtils
         }
 
         List<CBasePlayerWeapon?> weapons = GetWeapons(player);
-        if (!weapons.Any())
+        if (weapons is null || weapons.Count == 0)
         {
             return;
         }
@@ -731,16 +732,19 @@ internal static class GameModifiersUtils
 
     public static List<CCSPlayerController> GetSpectatingPlayers()
     {
-        return Utilities.GetPlayers().Where(player => player.Team == CsTeam.Spectator).ToList();
+        var returnInfo = Utilities.GetPlayers()?.Where(player => player.Team == CsTeam.Spectator).ToList();
+        return returnInfo ?? new List<CCSPlayerController>();
     }
 
     public static List<CCSPlayerController> GetCounterTerroristPlayers()
     {
-        return Utilities.GetPlayers().Where(player => player.Team == CsTeam.CounterTerrorist).ToList();
+        var returnInfo = Utilities.GetPlayers()?.Where(player => player.Team == CsTeam.CounterTerrorist).ToList();
+        return returnInfo ?? new List<CCSPlayerController>();
     }
 
     public static List<CCSPlayerController> GetTerroristPlayers()
     {
-        return Utilities.GetPlayers().Where(player => player.Team == CsTeam.Terrorist).ToList();
+        var returnInfo = Utilities.GetPlayers()?.Where(player => player.Team == CsTeam.Terrorist).ToList();
+        return returnInfo ?? new List<CCSPlayerController>();
     }
 }

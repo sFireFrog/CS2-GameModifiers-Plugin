@@ -52,7 +52,7 @@ public abstract class GameModifierWeapon : GameModifierBase
     private void TryApplyWeaponModifier(CCSPlayerController? player)
     {
         List<CBasePlayerWeapon?> weapons = GameModifiersUtils.GetWeapons(player);
-        if (!weapons.Any())
+        if (weapons is null || weapons.Count == 0)
         {
             return;
         }

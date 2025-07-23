@@ -25,7 +25,7 @@ public class ModifierConfig
         {
             Console.WriteLine($"[ModifierConfig::Enabled] Reading line: ({conVar})");
 
-            string[] conVarParts = conVar.Split(new char[] {' '}, 2, StringSplitOptions.RemoveEmptyEntries);
+            string[] conVarParts = conVar.Split(new char[] { ' ' }, 2, StringSplitOptions.RemoveEmptyEntries);
             if (conVarParts.Length == 2)
             {
                 ConVar? foundConVar = ConVar.Find(conVarParts[0]);
@@ -43,8 +43,9 @@ public class ModifierConfig
                 Console.WriteLine($"[ModifierConfig::Enabled] Executing server command: {conVar}");
             }
         }
-
+        Console.WriteLine("[ModifierConfig::ApplyClientConfig]  strtart");
         Utilities.GetPlayers().ForEach(ApplyClientConfig);
+         Console.WriteLine("[ModifierConfig::ApplyClientConfig] end");
     }
 
     public virtual void RemoveConfig()

@@ -99,7 +99,7 @@ public class GameModifiersCore : BasePlugin, IPluginConfig<GameModifiersConfig>
         RegisteredModifiers.Clear();
 
         List<Type> modifierTypes = GameModifiersUtils.GetAllChildClasses<GameModifierBase>();
-        if (!modifierTypes.Any())
+        if (modifierTypes is null || modifierTypes.Count == 0)
         {
             Console.WriteLine("[GameModifiers::InitialiseModifiers] No implemented modifiers found!");
             return;
@@ -398,7 +398,7 @@ public class GameModifiersCore : BasePlugin, IPluginConfig<GameModifiersConfig>
             return;
         }
 
-        if (!RegisteredModifiers.Any())
+        if (RegisteredModifiers is null || RegisteredModifiers.Count == 0)
         {
             GameModifiersUtils.PrintTitleToChat(player, "No registered modifiers found! Cannot re-roll modifiers.");
             return;
@@ -446,7 +446,7 @@ public class GameModifiersCore : BasePlugin, IPluginConfig<GameModifiersConfig>
     {
         if (RandomRoundsEnabled)
         {
-            if (!RegisteredModifiers.Any())
+            if (RegisteredModifiers is null || RegisteredModifiers.Count == 0)
             {
                 GameModifiersUtils.PrintTitleToChatAll("No registered modifiers found! Skipping random round...");
                 return HookResult.Continue;
@@ -473,18 +473,19 @@ public class GameModifiersCore : BasePlugin, IPluginConfig<GameModifiersConfig>
                 modifier.Enabled();
             }
         }
-
+          Console.WriteLine("[ModifierConfig::OnRoundStart] round start................");
         return HookResult.Continue;
     }
 
     [GameEventHandler]
     public HookResult OnRoundEnd(EventRoundEnd @event, GameEventInfo info)
     {
+        Console.WriteLine("[ModifierConfig::OnRoundEnd] round end..............");
         if (RandomRoundsEnabled)
         {
             RemoveAllModifiers();
         }
-
+        Console.WriteLine("[ModifierConfig::OnRoundEnd] round end2..............");
         return HookResult.Continue;
     }
 
@@ -500,7 +501,7 @@ public class GameModifiersCore : BasePlugin, IPluginConfig<GameModifiersConfig>
 
     public bool AnyModifiersActive()
     {
-        return ActiveModifiers.Any();
+        return ActiveModifiers.Count > 0;
     }
 
     public bool IsModifierActive(GameModifierBase? modifier)
@@ -649,7 +650,7 @@ public class GameModifiersCore : BasePlugin, IPluginConfig<GameModifiersConfig>
 
     public bool AddModifierByName(string modifierName, out string message)
     {
-        if (!RegisteredModifiers.Any())
+        if (RegisteredModifiers is null || RegisteredModifiers.Count == 0)
         {
             message = "No modifiers are registered.";
             return false;
@@ -683,7 +684,7 @@ public class GameModifiersCore : BasePlugin, IPluginConfig<GameModifiersConfig>
             }
         }
 
-        if (blockingModifierNames.Any())
+        if (blockingModifierNames is not null && blockingModifierNames.Count > 0)
         {
             message = $"{modifier.Name} modifier is blocked by:";
             foreach (var blockingModifierName in blockingModifierNames)
@@ -707,7 +708,7 @@ public class GameModifiersCore : BasePlugin, IPluginConfig<GameModifiersConfig>
 
     public void RemoveModifierByName(string modifierName, out string message)
     {
-        if (!ActiveModifiers.Any())
+        if (ActiveModifiers.Count == 0)
         {
             message = "No modifiers are active.";
             return;
@@ -748,22 +749,22 @@ public class GameModifiersCore : BasePlugin, IPluginConfig<GameModifiersConfig>
 
     public void RemoveAllModifiers()
     {
-        if (!ActiveModifiers.Any())
+        if (ActiveModifiers.Count == 0)
         {
             return;
         }
         
         GameModifiersUtils.PrintTitleToChatAll($"{Localizer["centre.remove.msg"]}:");
-
+        var msg = "";
         // Undo modifiers in the order they were applied.
         for (var index = ActiveModifiers.Count - 1; index >= 0; index--)
         {
             var modifier = ActiveModifiers[index];
             modifier.Disabled();
-            
-            GameModifiersUtils.PrintToChatAll($"• {modifier.TranslationName}");
+            msg += $"• {modifier.TranslationName} \n\r";
+           
         }
-
+        GameModifiersUtils.PrintToChatAll(msg);
         ActiveModifiers.Clear();
     }
 
@@ -788,7 +789,7 @@ public class GameModifiersCore : BasePlugin, IPluginConfig<GameModifiersConfig>
             return true;
         }
         
-        if (!RegisteredModifiers.Any())
+        if (RegisteredModifiers.Count <= 0)
         {
             Console.WriteLine("[GameModifiers::AddRandomModifiers] No registered modifiers available!");
             return false;
@@ -815,7 +816,7 @@ public class GameModifiersCore : BasePlugin, IPluginConfig<GameModifiersConfig>
             }
         }
 
-        if (!possibleModifiersPool.Any())
+        if (possibleModifiersPool is null || possibleModifiersPool.Count == 0)
         {
             Console.WriteLine("[GameModifiers::AddRandomModifiers] Modifier pool is empty!");
             return false;
@@ -836,7 +837,7 @@ public class GameModifiersCore : BasePlugin, IPluginConfig<GameModifiersConfig>
             possibleModifiersPool.RemoveAt(randomIndex);
         }
 
-        if (!addedModifiers.Any())
+        if (addedModifiers.Count == 0)
         {
             return false;
         }
@@ -858,7 +859,7 @@ public class GameModifiersCore : BasePlugin, IPluginConfig<GameModifiersConfig>
 
     private void ActivateModifiers(List<GameModifierBase> modifiers)
     {
-        if (!modifiers.Any())
+        if (modifiers.Count == 0)
         {
             return;
         }
@@ -881,11 +882,14 @@ public class GameModifiersCore : BasePlugin, IPluginConfig<GameModifiersConfig>
         }
 
         GameModifiersUtils.PrintTitleToChatAll($"{Localizer["centre.activation.msg"]}:");
+        var chatMsg = "";
         foreach (var modifier in modifiers)
         {
-            GameModifiersUtils.PrintToChatAll($"• {modifier.TranslationName} - {ChatColors.Grey}[{modifier.TranslationDescription}]");
+            //GameModifiersUtils.PrintToChatAll($"• {modifier.TranslationName} - {ChatColors.Grey}[{modifier.TranslationDescription}]");
+            chatMsg += $"• {ChatColors.White}{modifier.TranslationName} - {ChatColors.Grey}[{modifier.TranslationDescription}] \n\r";
         }
 
+        GameModifiersUtils.PrintTitleToChatAll(chatMsg);
         foreach (GameModifierBase? modifier in modifiers)
         {
             modifier.Enabled();

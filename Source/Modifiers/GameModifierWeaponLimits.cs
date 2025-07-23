@@ -132,7 +132,7 @@ public abstract class GameModifierRemoveWeapons : GameModifierBase
             TryReturnWeapons(@event.Userid);
         
             // Check if we can deregister this even if we are no longer active and have no tracked items.
-            if (!CachedItems.Any() && Core != null)
+            if (CachedItems.Count == 0 && Core != null)
             {
                 Core.DeregisterEventHandler<EventPlayerSpawn>(OnPlayerSpawn);
             }
