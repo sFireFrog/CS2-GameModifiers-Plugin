@@ -74,7 +74,7 @@ internal static class GameModifiersUtils
 
     public static void PrintTitleToChat(CCSPlayerController? player, string message)
     {
-        if (player == null)
+        if (player == null || player.IsBot || player.IsHLTV || !player.IsValid)
         {
             return;
         }
@@ -84,7 +84,7 @@ internal static class GameModifiersUtils
 
     public static void PrintModifiersToChat(CCSPlayerController? player, List<GameModifierBase> modifiers, string message, bool withDescriptions = true)
     {
-        if (player == null)
+        if (player == null || player.IsBot || player.IsHLTV || !player.IsValid)
         {
             return;
         }
