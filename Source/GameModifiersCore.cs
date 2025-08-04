@@ -480,12 +480,12 @@ public class GameModifiersCore : BasePlugin, IPluginConfig<GameModifiersConfig>
     [GameEventHandler]
     public HookResult OnRoundEnd(EventRoundEnd @event, GameEventInfo info)
     {
-        Console.WriteLine("[ModifierConfig::OnRoundEnd] round end..............");
+        //Console.WriteLine("[ModifierConfig::OnRoundEnd] round end..............");
         if (RandomRoundsEnabled)
         {
             RemoveAllModifiers();
         }
-        Console.WriteLine("[ModifierConfig::OnRoundEnd] round end2..............");
+        //Console.WriteLine("[ModifierConfig::OnRoundEnd] round end2..............");
         return HookResult.Continue;
     }
 
