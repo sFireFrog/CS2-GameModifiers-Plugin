@@ -11,6 +11,7 @@ using CounterStrikeSharp.API.Core.Attributes.Registration;
 using CounterStrikeSharp.API.Modules.Utils;
 
 using GameModifiers.Modifiers;
+using System.Runtime.InteropServices;
 
 namespace GameModifiers;
 
@@ -25,6 +26,8 @@ public class GameModifiersCore : BasePlugin, IPluginConfig<GameModifiersConfig>
     private List<GameModifierBase> RegisteredModifiers { get; } = new();
     private List<GameModifierBase> ActiveModifiers { get; } = new();
     private List<GameModifierBase> LastActiveModifiers { get; set; } = new();
+
+    private List<GameModifierBase> PossibleModifiersPool = new();
 
     private int _minRandomRounds = 1;
     private int _maxRandomRounds = 1;
@@ -444,6 +447,7 @@ public class GameModifiersCore : BasePlugin, IPluginConfig<GameModifiersConfig>
     [GameEventHandler]
     public HookResult OnRoundStart(EventRoundStart @event, GameEventInfo info)
     {
+        Console.WriteLine("[ModifierConfig::OnRoundStart] round start................1");
         if (RandomRoundsEnabled)
         {
             if (RegisteredModifiers is null || RegisteredModifiers.Count == 0)
@@ -451,9 +455,9 @@ public class GameModifiersCore : BasePlugin, IPluginConfig<GameModifiersConfig>
                 GameModifiersUtils.PrintTitleToChatAll("No registered modifiers found! Skipping random round...");
                 return HookResult.Continue;
             }
-            
+
             RemoveAllModifiers();
-            
+
             if (Config.DisableRandomRoundsInWarmup && GameModifiersUtils.IsWarmupActive())
             {
                 GameModifiersUtils.PrintTitleToChatAll("Random rounds will start after warmup period...");
@@ -794,47 +798,52 @@ public class GameModifiersCore : BasePlugin, IPluginConfig<GameModifiersConfig>
             Console.WriteLine("[GameModifiers::AddRandomModifiers] No registered modifiers available!");
             return false;
         }
-
-        // Filter out modifiers not supporting random rounds and those currently active.
-        List<GameModifierBase> randomModifiersPool = RegisteredModifiers
-            .Where(modifier => modifier.SupportsRandomRounds && !ActiveModifiers.Contains(modifier) && (Config.CanRepeat || !LastActiveModifiers.Contains(modifier)))
-            .ToList();
-
-        // Randomly remove modifiers that are incompatible within the randomModifiersPool.
-        List<GameModifierBase> possibleModifiersPool = randomModifiersPool.ToList();
-        Random random = new Random();
-
-        for (int a = 0; a < randomModifiersPool.Count; a++)
+        
+        if (!Config.AllDifferent)
         {
-            for (int b = a + 1; b < randomModifiersPool.Count; b++)
+            // Filter out modifiers not supporting random rounds and those currently active.
+            List<GameModifierBase> randomModifiersPool = RegisteredModifiers
+                .Where(modifier => modifier.SupportsRandomRounds && !ActiveModifiers.Contains(modifier) && (Config.CanRepeat || !LastActiveModifiers.Contains(modifier)))
+                .ToList();
+            // Randomly remove modifiers that are incompatible within the randomModifiersPool.
+           
+            var status = ProcessCheckIfIncompatible(randomModifiersPool,out PossibleModifiersPool);
+            if (!status)
             {
-                if (randomModifiersPool[a].CheckIfIncompatible(randomModifiersPool[b]) ||
-                    randomModifiersPool[b].CheckIfIncompatible(randomModifiersPool[a]))
+                Console.WriteLine("[GameModifiers::AddRandomModifiers] No possible modifiers available!");
+                return false;
+            }
+            
+        }
+        else
+        {
+            if (PossibleModifiersPool is null || PossibleModifiersPool.Count == 0)
+            {
+                List<GameModifierBase> randomModifiersPool = RegisteredModifiers.Where(modifier => modifier.SupportsRandomRounds).ToList();
+                var status = ProcessCheckIfIncompatible(randomModifiersPool, out PossibleModifiersPool);
+                if (!status)
                 {
-                    possibleModifiersPool.Remove(random.Next(0, 2) == 0 ? randomModifiersPool[a] : randomModifiersPool[b]);
+                    Console.WriteLine("[GameModifiers::AddRandomModifiers] No possible modifiers available!");
+                    return false;
                 }
+                ShuffleSpan(PossibleModifiersPool);
             }
         }
 
-        if (possibleModifiersPool is null || possibleModifiersPool.Count == 0)
-        {
-            Console.WriteLine("[GameModifiers::AddRandomModifiers] Modifier pool is empty!");
-            return false;
-        }
 
         // Adjust modifierCount if not enough candidates.
-        if (modifierCount > possibleModifiersPool.Count)
+        if (modifierCount > PossibleModifiersPool.Count)
         {
-            Console.WriteLine($"[GameModifiers::AddRandomModifiers] Not enough modifiers in possible modifiers pool, reduced random modifier count from {modifierCount} to {possibleModifiersPool.Count}!");
-            modifierCount = possibleModifiersPool.Count;
+            Console.WriteLine($"[GameModifiers::AddRandomModifiers] Not enough modifiers in possible modifiers pool, reduced random modifier count from {modifierCount} to {PossibleModifiersPool.Count}!");
+            modifierCount = PossibleModifiersPool.Count;
         }
-
+        Random random = new Random();
         // Generate a list of random modifiers from possibleModifiersPool.
         for (int i = 0; i < modifierCount; i++)
         {
-            int randomIndex = random.Next(possibleModifiersPool.Count);
-            addedModifiers.Add(possibleModifiersPool[randomIndex]);
-            possibleModifiersPool.RemoveAt(randomIndex);
+            int randomIndex = random.Next(PossibleModifiersPool.Count);
+            addedModifiers.Add(PossibleModifiersPool[randomIndex]);
+            PossibleModifiersPool.RemoveAt(randomIndex);
         }
 
         if (addedModifiers.Count == 0)
@@ -846,6 +855,40 @@ public class GameModifiersCore : BasePlugin, IPluginConfig<GameModifiersConfig>
         return true;
     }
 
+    private bool ProcessCheckIfIncompatible(List<GameModifierBase> randomModifiersPool, out List<GameModifierBase> result)
+    {
+        Random random = new Random();
+        result = new();
+        for (int a = 0; a < randomModifiersPool.Count; a++)
+        {
+            for (int b = a + 1; b < randomModifiersPool.Count; b++)
+            {
+                if (randomModifiersPool[a].CheckIfIncompatible(randomModifiersPool[b]) ||
+                    randomModifiersPool[b].CheckIfIncompatible(randomModifiersPool[a]))
+                {
+                    randomModifiersPool.Remove(random.Next(0, 2) == 0 ? randomModifiersPool[a] : randomModifiersPool[b]);
+                }
+            }
+        }
+
+        if (randomModifiersPool is null || randomModifiersPool.Count == 0)
+        {
+            Console.WriteLine("[GameModifiers::AddRandomModifiers] Modifier pool is empty!");
+            return false;
+        }
+        result = randomModifiersPool;
+        return true;
+    }
+    private void ShuffleSpan<T>(IList<T> list)
+    {
+        Span<T> span = CollectionsMarshal.AsSpan((List<T>)list);
+        Random rng = new();
+        for (int i = span.Length - 1; i > 0; i--)
+        {
+            int j = rng.Next(i + 1);
+            (span[i], span[j]) = (span[j], span[i]);
+        }
+    }
     private void ActivateModifier(GameModifierBase? modifier)
     {
         if (modifier == null)
@@ -888,7 +931,7 @@ public class GameModifiersCore : BasePlugin, IPluginConfig<GameModifiersConfig>
             //GameModifiersUtils.PrintToChatAll($"• {modifier.TranslationName} - {ChatColors.Grey}[{modifier.TranslationDescription}]");
             chatMsg += $"• {ChatColors.White}{modifier.TranslationName} - {ChatColors.Grey}[{modifier.TranslationDescription}] \n\r";
         }
-
+        Console.WriteLine($"[GameModifiers::ActivateModifiers] {chatMsg}");
         GameModifiersUtils.PrintTitleToChatAll(chatMsg);
         foreach (GameModifierBase? modifier in modifiers)
         {

@@ -14,4 +14,6 @@ public class GameModifiersConfig : BasePluginConfig
     [JsonPropertyName("MinRandomRounds")] public int MinRandomRounds { get; set; } = 1;
     [JsonPropertyName("MaxRandomRounds")] public int MaxRandomRounds { get; set; } = 1;
     [JsonPropertyName("DisabledModifiers")] public string[] DisabledModifiers { get; set; } = new string[] { };
+    [JsonPropertyName("AllDifferent")] public bool AllDifferent { get; set; } = true;
+
 }
